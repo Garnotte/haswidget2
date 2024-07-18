@@ -8,7 +8,7 @@ from typing import Any, Final, cast
 from .swidgetclient.device import SwidgetDevice
 from .swidgetclient.swidgetoutlet import SwidgetOutlet
 from .swidgetclient.swidgetswitch import SwidgetSwitch
-
+from .swidgetclient.swidgettimerswitch import SwidgetTimerSwitch
 
 
 import voluptuous as vol
@@ -26,7 +26,7 @@ from .entity import CoordinatedSwidgetEntity, async_refresh_after
 
 _LOGGER = logging.getLogger(__name__)
 DURATION = "duration"
-VAL = vol.Range(min=1, max=1440)
+VAL = vol.Range(min=1, max=30)
 SERVICE_SWIDGET_SET_COUNTDOWN_TIMER = "set_countdown_timer"
 SWIDGET_SET_COUNTDOWN_TIMER_SCHEMA = cv.make_entity_service_schema(
     {
@@ -49,6 +49,8 @@ async def async_setup_entry(
         entities.append(SwidgetPlugSwitch(cast(SwidgetOutlet, coordinator.device), coordinator))
     if coordinator.device.is_switch:
         entities.append(SwidgetPlugSwitch(cast(SwidgetSwitch, coordinator.device), coordinator))
+    if coordinator.device.is_pana_switch:
+        entities.append(SwidgetFanSwitch(cast(SwidgetTimerSwitch, coordinator.device), coordinator))
     if coordinator.device.insert_type == "USB":
         entities.append(SwidgetUSBSwitch(cast(SwidgetOutlet, coordinator.device), coordinator))
     async_add_entities(entities)
@@ -95,6 +97,53 @@ class SwidgetPlugSwitch(CoordinatedSwidgetEntity, SwitchEntity):
     async def set_countdown_timer(self, **kwargs: Any) -> None:
         if DURATION in kwargs:
             await self.device.set_countdown_timer(kwargs[DURATION])
+
+class SwidgetFanSwitch(CoordinatedSwidgetEntity, SwitchEntity):
+    """Representation of a swidget timer switch."""
+
+    def __init__(
+        self,
+        device: SwidgetDevice,
+        coordinator: SwidgetDataUpdateCoordinator,
+    ) -> None:
+        """Initialize the switch."""
+        super().__init__(device, coordinator)
+        self.entity_description = SwitchEntityDescription(
+            key="Timer Switch",
+            icon="mdi:fan",
+        )
+        self._attr_name = "Controlled Timer Switch"
+        self._attr_unique_id = (
+            f"{self.device}_controlled_timer_switch"
+        )
+
+    @async_refresh_after
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the switch on."""
+        await self.device.turn_on()
+
+    @async_refresh_after
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the switch off."""
+        await self.device.turn_off()
+
+    @property
+    def is_on(self) -> bool:
+        return self.device.is_on
+
+    @property
+    def timer(self) -> float | None:
+        """Return the timer duration."""
+        return self.device.timer
+
+    async def set_countdown_timer(self, **kwargs: Any) -> None:
+        if DURATION in kwargs:
+            await self.device.set_countdown_timer(kwargs[DURATION])
+
+    async def activate_fan(self, duration: int) -> None:
+        """Activate the fan for the specified duration."""
+        #await self.async_turn_on()
+        await self.device.set_countdown_timer(duration)
 
 
 class SwidgetUSBSwitch(CoordinatedSwidgetEntity, SwitchEntity):
