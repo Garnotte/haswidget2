@@ -19,10 +19,10 @@ from homeassistant.const import (
     CONCENTRATION_PARTS_PER_BILLION,
     CONCENTRATION_PARTS_PER_MILLION,
     PERCENTAGE,
-    POWER_WATT,
-    PRESSURE_HPA,
+    UnitOfPower,
+    UnitOfPressure,
     SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -47,7 +47,7 @@ class SwidgetSensorEntityDescription(SensorEntityDescription):
 SWIDGET_SENSORS: tuple[SwidgetSensorEntityDescription, ...] = (
     SwidgetSensorEntityDescription(
         key="Power 0",
-        native_unit_of_measurement=POWER_WATT,
+        native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
         name="Plug 0 Current Consumption",
@@ -56,7 +56,7 @@ SWIDGET_SENSORS: tuple[SwidgetSensorEntityDescription, ...] = (
     ),
     SwidgetSensorEntityDescription(
         key="Power 1",
-        native_unit_of_measurement=POWER_WATT,
+        native_unit_of_measurement=UnitOfPower.WATT,
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
         name="Plug 1 Current Consumption",
@@ -65,7 +65,7 @@ SWIDGET_SENSORS: tuple[SwidgetSensorEntityDescription, ...] = (
     ),
     SwidgetSensorEntityDescription(
         key="Temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         name="Temperature",
@@ -83,7 +83,7 @@ SWIDGET_SENSORS: tuple[SwidgetSensorEntityDescription, ...] = (
     ),
     SwidgetSensorEntityDescription(
         key="Pressure",
-        native_unit_of_measurement=PRESSURE_HPA,
+        native_unit_of_measurement=UnitOfPressure.HPA,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         name="Air Pressure",
