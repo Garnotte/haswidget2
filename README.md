@@ -1,1 +1,1 @@
-# haswidget2
+# Home Assistant Swidget-2
